@@ -84,22 +84,27 @@ const Login = () => {
   }
 
   return (
-    <Container component="main" maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ padding: 4, width: '100%' }}>
-          <Typography component="h1" variant="h4" align="center" gutterBottom>
-            School Equipment Lending
-          </Typography>
-          <Typography component="h2" variant="h5" align="center" gutterBottom>
-            {isLogin ? 'Sign In' : 'Sign Up'}
-          </Typography>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', display: 'flex', alignItems: 'center' }}>
+      <Container component="main" maxWidth="sm">
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Paper elevation={8} sx={{ padding: 4, width: '100%', borderRadius: 3, bgcolor: 'rgba(255,255,255,0.95)' }}>
+            <Box textAlign="center" mb={3}>
+              <Typography component="h1" variant="h3" sx={{ fontWeight: 700, color: 'primary.main', mb: 1 }}>
+                🏢 School Equipment
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                Lending System
+              </Typography>
+            </Box>
+            <Typography component="h2" variant="h5" align="center" gutterBottom sx={{ fontWeight: 600, color: 'text.primary' }}>
+              {isLogin ? '🔑 Sign In' : '📝 Sign Up'}
+            </Typography>
 
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -225,10 +230,18 @@ const Login = () => {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              size="large"
+              sx={{ 
+                mt: 3, 
+                mb: 2, 
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: 600,
+                fontSize: '1.1rem'
+              }}
               disabled={loading}
             >
-              {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Sign Up')}
+              {loading ? '⏳ Please wait...' : (isLogin ? '🔑 Sign In' : '📝 Sign Up')}
             </Button>
 
             <Divider sx={{ my: 2 }} />
@@ -246,9 +259,10 @@ const Login = () => {
               </Link>
             </Box>
           </Box>
-        </Paper>
-      </Box>
-    </Container>
+          </Paper>
+        </Box>
+      </Container>
+    </Box>
   )
 }
 

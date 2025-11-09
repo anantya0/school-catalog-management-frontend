@@ -14,9 +14,11 @@ import {
   Pagination,
   InputAdornment,
   Fab,
-  Dialog
+  Dialog,
+  Avatar,
+  Paper
 } from '@mui/material'
-import { Search, Add, Devices } from '@mui/icons-material'
+import { Search, Add, Devices, Computer, Build, Science, SportsEsports, Camera, Print, Headset } from '@mui/icons-material'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -44,7 +46,8 @@ const Equipment = () => {
       search: search || undefined,
       category: category || undefined,
       status: status || undefined
-    })
+    }),
+    keepPreviousData: true
   })
 
   // Fetch categories
@@ -101,6 +104,17 @@ const Equipment = () => {
       default:
         return 'default'
     }
+  }
+
+  const getCategoryIcon = (categoryName) => {
+    const category = categoryName?.toLowerCase() || ''
+    if (category.includes('computer') || category.includes('laptop')) return <Computer />
+    if (category.includes('camera') || category.includes('photo')) return <Camera />
+    if (category.includes('printer')) return <Print />
+    if (category.includes('audio') || category.includes('headset')) return <Headset />
+    if (category.includes('game') || category.includes('gaming')) return <SportsEsports />
+    if (category.includes('science') || category.includes('lab')) return <Science />
+    return <Build />
   }
 
   if (isLoading) {
@@ -180,40 +194,88 @@ const Equipment = () => {
 
       {/* Equipment Grid */}
       {equipment.length === 0 ? (
-        <Box textAlign="center" py={8}>
-          <Devices sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="h6" color="textSecondary">
+        <Paper elevation={0} sx={{ textAlign: 'center', py: 8, bgcolor: 'grey.50' }}>
+          <Devices sx={{ fontSize: 80, color: 'primary.main', mb: 2 }} />
+          <Typography variant="h5" color="textPrimary" gutterBottom>
             No equipment found
           </Typography>
-          <Typography color="textSecondary">
-            Try adjusting your search criteria
+          <Typography variant="body1" color="textSecondary">
+            Try adjusting your search criteria or browse all categories
           </Typography>
-        </Box>
+        </Paper>
       ) : (
         <>
           <Grid container spacing={3}>
             {equipment.map((item) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={item.image_url || '/placeholder-equipment.jpg'}
-                    alt={item.name}
-                    sx={{ objectFit: 'cover' }}
-                  />
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography gutterBottom variant="h6" component="h2" noWrap>
+                <Card 
+                  sx={{ 
+                    height: '100%', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    transition: 'all 0.3s ease-in-out',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: 6
+                    }
+                  }}
+                >
+                  {item.image_url ? (
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={`http://localhost:5000${item.image_url}`}
+                      alt={item.name}
+                      sx={{ objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.style.display = 'none'
+                        e.target.nextSibling.style.display = 'flex'
+                      }}
+                    />
+                  ) : null}
+                  <Box
+                    sx={{
+                      height: 200,
+                      display: item.image_url ? 'none' : 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: 'primary.main',
+                      color: 'white'
+                    }}
+                  >
+                    <Avatar sx={{ width: 80, height: 80, bgcolor: 'primary.dark' }}>
+                      {getCategoryIcon(item.category_name)}
+                    </Avatar>
+                  </Box>
+                  <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                    <Typography gutterBottom variant="h6" component="h2" sx={{ fontWeight: 600 }}>
                       {item.name}
                     </Typography>
-                    <Typography variant="body2" color="textSecondary" paragraph>
-                      {item.description}
+                    <Typography 
+                      variant="body2" 
+                      color="textSecondary" 
+                      sx={{ 
+                        mb: 2,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        minHeight: '2.5em'
+                      }}
+                    >
+                      {item.description || 'No description available'}
                     </Typography>
-                    <Box display="flex" gap={1} mb={1}>
+                    {item.borrow_count > 0 && (
+                      <Typography variant="caption" color="primary" sx={{ mb: 1, display: 'block' }}>
+                        🔥 Popular ({item.borrow_count} borrows)
+                      </Typography>
+                    )}
+                    <Box display="flex" gap={1} mb={2} flexWrap="wrap">
                       <Chip
                         label={item.availability_status}
                         color={getStatusColor(item.availability_status)}
                         size="small"
+                        sx={{ fontWeight: 500 }}
                       />
                       <Chip
                         label={item.condition_status}
@@ -223,20 +285,21 @@ const Equipment = () => {
                       />
                     </Box>
                     {item.category_name && (
-                      <Typography variant="body2" color="textSecondary">
-                        Category: {item.category_name}
+                      <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5 }}>
+                        📂 {item.category_name}
                       </Typography>
                     )}
                     {item.location && (
                       <Typography variant="body2" color="textSecondary">
-                        Location: {item.location}
+                        📍 {item.location}
                       </Typography>
                     )}
                   </CardContent>
-                  <CardActions>
+                  <CardActions sx={{ p: 2, pt: 0 }}>
                     <Button
                       size="small"
                       onClick={() => navigate(`/equipment/${item.id}`)}
+                      sx={{ mr: 1 }}
                     >
                       View Details
                     </Button>
@@ -245,6 +308,7 @@ const Equipment = () => {
                         size="small"
                         variant="contained"
                         onClick={() => navigate(`/equipment/${item.id}?action=borrow`)}
+                        sx={{ ml: 'auto' }}
                       >
                         Borrow
                       </Button>

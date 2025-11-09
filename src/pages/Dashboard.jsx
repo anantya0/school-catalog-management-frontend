@@ -45,10 +45,17 @@ const Dashboard = () => {
     enabled: isStaff
   })
 
+  // Fetch dashboard stats
+  const { data: dashboardStats } = useQuery({
+    queryKey: ['dashboardStats'],
+    queryFn: equipmentService.getDashboardStats,
+    enabled: isStaff
+  })
+
   // Fetch equipment stats for admin
-  const { data: equipmentStats, isLoading: loadingEquipment } = useQuery({
+  const { data: equipmentStats } = useQuery({
     queryKey: ['equipmentStats'],
-    queryFn: () => equipmentService.getEquipment({ limit: 1 }),
+    queryFn: equipmentService.getStats,
     enabled: isAdmin
   })
 
@@ -249,6 +256,51 @@ const Dashboard = () => {
                   ))}
                 </List>
               )}
+            </Paper>
+          </Grid>
+        )}
+
+        {/* Equipment Stats for Admin */}
+        {isAdmin && equipmentStats && (
+          <Grid item xs={12}>
+            <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3 }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: 'primary.main' }}>
+                📊 Equipment Overview
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6} md={3}>
+                  <Box textAlign="center" p={2} bgcolor="success.light" borderRadius={1}>
+                    <Typography variant="h4" color="success.dark">
+                      {equipmentStats.overallStats?.available_count || 0}
+                    </Typography>
+                    <Typography variant="body2">Available</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <Box textAlign="center" p={2} bgcolor="warning.light" borderRadius={1}>
+                    <Typography variant="h4" color="warning.dark">
+                      {equipmentStats.overallStats?.borrowed_count || 0}
+                    </Typography>
+                    <Typography variant="body2">Borrowed</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <Box textAlign="center" p={2} bgcolor="info.light" borderRadius={1}>
+                    <Typography variant="h4" color="info.dark">
+                      {equipmentStats.overallStats?.maintenance_count || 0}
+                    </Typography>
+                    <Typography variant="body2">Maintenance</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <Box textAlign="center" p={2} bgcolor="primary.light" borderRadius={1}>
+                    <Typography variant="h4" color="primary.dark">
+                      {equipmentStats.overallStats?.total_equipment || 0}
+                    </Typography>
+                    <Typography variant="body2">Total Items</Typography>
+                  </Box>
+                </Grid>
+              </Grid>
             </Paper>
           </Grid>
         )}

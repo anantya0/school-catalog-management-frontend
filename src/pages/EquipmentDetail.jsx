@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container, Paper, Typography, Grid, Chip, Button, Box,
-  Card, CardMedia, CardContent, Divider, Alert, TextField, Dialog, DialogTitle, DialogContent, DialogActions
+  Card, CardMedia, CardContent, Divider, Alert, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Avatar
 } from '@mui/material';
-import { ArrowBack, Build } from '@mui/icons-material';
+import { ArrowBack, Build, Computer, Camera, Print, Headset, SportsEsports, Science } from '@mui/icons-material';
 import { equipmentService } from '../services/equipmentService';
 import { borrowingService } from '../services/borrowingService';
 
@@ -66,6 +66,17 @@ const EquipmentDetail = () => {
     }
   };
 
+  const getCategoryIcon = (categoryName) => {
+    const category = categoryName?.toLowerCase() || '';
+    if (category.includes('computer') || category.includes('laptop')) return <Computer sx={{ fontSize: 60 }} />;
+    if (category.includes('camera') || category.includes('photo')) return <Camera sx={{ fontSize: 60 }} />;
+    if (category.includes('printer')) return <Print sx={{ fontSize: 60 }} />;
+    if (category.includes('audio') || category.includes('headset')) return <Headset sx={{ fontSize: 60 }} />;
+    if (category.includes('game') || category.includes('gaming')) return <SportsEsports sx={{ fontSize: 60 }} />;
+    if (category.includes('science') || category.includes('lab')) return <Science sx={{ fontSize: 60 }} />;
+    return <Build sx={{ fontSize: 60 }} />;
+  };
+
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Alert severity="error">{error}</Alert>;
   if (!equipment) return <Alert severity="error">Equipment not found</Alert>;
@@ -82,7 +93,7 @@ const EquipmentDetail = () => {
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
             {equipment.image_url ? (
               <CardMedia
                 component="img"
@@ -90,46 +101,58 @@ const EquipmentDetail = () => {
                 image={`http://localhost:5000${equipment.image_url}`}
                 alt={equipment.name}
                 sx={{ objectFit: 'contain' }}
-              />
-            ) : (
-              <Box
-                sx={{
-                  height: 400,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  bgcolor: 'grey.100'
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
                 }}
-              >
-                <Build sx={{ fontSize: 100, color: 'grey.400' }} />
-              </Box>
-            )}
+              />
+            ) : null}
+            <Box
+              sx={{
+                height: 400,
+                display: equipment.image_url ? 'none' : 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                bgcolor: 'primary.main',
+                color: 'white',
+                flexDirection: 'column',
+                gap: 2
+              }}
+            >
+              <Avatar sx={{ width: 120, height: 120, bgcolor: 'primary.dark' }}>
+                {getCategoryIcon(equipment.category_name)}
+              </Avatar>
+              <Typography variant="h6" color="inherit">
+                {equipment.category_name || 'Equipment'}
+              </Typography>
+            </Box>
           </Card>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h4" gutterBottom>
+          <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3 }}>
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: 'primary.main' }}>
               {equipment.name}
             </Typography>
 
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: 3 }}>
               <Chip
                 label={equipment.availability_status}
                 color={getStatusColor(equipment.availability_status)}
-                sx={{ mr: 1 }}
+                sx={{ mr: 1, fontWeight: 500 }}
               />
               <Chip
                 label={equipment.condition_status}
                 color={getConditionColor(equipment.condition_status)}
+                variant="outlined"
               />
             </Box>
 
-            <Typography variant="body1" paragraph>
-              {equipment.description}
+            <Typography variant="body1" paragraph sx={{ lineHeight: 1.6, color: 'text.secondary' }}>
+              {equipment.description || 'No description available for this equipment.'}
             </Typography>
 
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 3 }} />
 
             <Grid container spacing={2}>
               <Grid item xs={6}>
@@ -182,12 +205,19 @@ const EquipmentDetail = () => {
               </Grid>
             </Grid>
 
-            {equipment.availability_status === 'available' && (
+            {equipment.availability_status === 'available' ? (
               <Button
                 variant="contained"
                 color="primary"
                 fullWidth
-                sx={{ mt: 3 }}
+                size="large"
+                sx={{ 
+                  mt: 4, 
+                  py: 1.5,
+                  borderRadius: 2,
+                  fontWeight: 600,
+                  fontSize: '1.1rem'
+                }}
                 onClick={() => {
                   const today = new Date();
                   const tomorrow = new Date(today);
@@ -203,15 +233,21 @@ const EquipmentDetail = () => {
                   setBorrowDialog(true);
                 }}
               >
-                Request to Borrow
+                📋 Request to Borrow
               </Button>
+            ) : (
+              <Alert severity="warning" sx={{ mt: 4 }}>
+                This equipment is currently {equipment.availability_status} and not available for borrowing.
+              </Alert>
             )}
           </Paper>
         </Grid>
       </Grid>
 
       <Dialog open={borrowDialog} onClose={() => setBorrowDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Request to Borrow: {equipment.name}</DialogTitle>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600 }}>
+          📋 Request to Borrow: {equipment.name}
+        </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={6}>

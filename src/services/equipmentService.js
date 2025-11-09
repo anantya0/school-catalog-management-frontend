@@ -7,6 +7,12 @@ export const equipmentService = {
     return response.data
   },
 
+  // Get equipment statistics
+  getStats: async () => {
+    const response = await api.get('/equipment/stats')
+    return response.data
+  },
+
   // Get equipment by ID
   getEquipmentById: async (id) => {
     const response = await api.get(`/equipment/${id}`)
@@ -64,6 +70,12 @@ export const equipmentService = {
   // Create equipment category (Admin only)
   createCategory: async (categoryData) => {
     const response = await api.post('/equipment/categories', categoryData)
+    return response.data
+  },
+
+  // Get dashboard statistics
+  getDashboardStats: async () => {
+    const response = await api.get('/dashboard/stats')
     return response.data
   }
 }
